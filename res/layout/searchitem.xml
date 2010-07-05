@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/search_container"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:orientation="horizontal"
+    android:padding="6dip">
+	<LinearLayout
+		android:id="@+id/book_info_container"
+		android:layout_width="0dip"
+		android:layout_height="wrap_content"
+		android:layout_weight="5"
+		android:orientation="vertical" >
+	    <TextView
+	        android:id="@+id/text_isbn"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+			android:singleLine="true"
+	        android:ellipsize="marquee"
+	        android:textAppearance="?android:attr/textAppearanceLarge"
+	    />
+	    <TextView
+	        android:id="@+id/text_store"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:textAppearance="?android:attr/textAppearanceSmall"
+	    />
+	</LinearLayout>
+    <TextView
+        android:id="@+id/text_price"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+		android:layout_weight="2"
+		android:gravity="center"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+    />
+</LinearLayout>

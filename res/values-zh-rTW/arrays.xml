@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="stores">
+        <item>翻書客</item>
+        <item>誠品</item>
+        <item>博客來</item>
+        <item>三民書局</item>
+        <item>金石堂</item>
+        <item>天瓏</item>
+    </string-array>
+</resources>
+    

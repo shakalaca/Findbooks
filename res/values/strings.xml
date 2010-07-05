@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FindBooks</string>
+    <string name="btn_convert_isbn10_text">To ISBN-10</string>
+    <string name="btn_convert_restore_text">To ISBN-13</string>
+    
+    <string name="edit_isbn_hint_text">Enter ISBN</string>
+    <string name="btn_find_text">Find</string>
+    <string name="btn_scan_find_text">Scan barcode &amp; Find</string>
+	<string name="text_recent_text">Recent searches:</string>
+	
+	<string name="text_price_text">NT $%s</string>
+	<string name="loading_text">Loading..</string>
+</resources>

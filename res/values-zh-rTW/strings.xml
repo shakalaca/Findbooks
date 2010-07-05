@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">找書去</string>
+    <string name="btn_convert_isbn10_text">轉為 ISBN-10</string>
+    <string name="btn_convert_restore_text">轉為 ISBN-13</string>
+    
+    <string name="edit_isbn_hint_text">輸入 ISBN</string>
+    <string name="btn_find_text">尋找</string>
+    <string name="btn_scan_find_text">掃描條碼後尋找</string>
+	<string name="text_recent_text">最近查詢:</string>
+
+	<string name="text_price_text">%s 元</string>
+	<string name="loading_text">載入中..</string>
+</resources>
