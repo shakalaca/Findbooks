@@ -11,4 +11,8 @@
 	
 	<string name="text_price_text">NT $%s</string>
 	<string name="loading_text">Loading..</string>
+
+	<string name="error_text">Error</string>
+	<string name="not_found_text">Book not found in this web</string>
+	<string name="back_text">Back</string>
 </resources>

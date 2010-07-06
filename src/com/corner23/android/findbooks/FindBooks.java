@@ -16,6 +16,7 @@ import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -128,6 +129,7 @@ public class FindBooks extends Activity {
     	private int nBookstore;
     	private HttpClient httpclient = null;
     	private HttpGet httpget = null;
+    	private boolean bHttpConnectSuccess = false;
 
     	private String decode(String str, char unknownCh) {
             StringBuffer sb = new StringBuffer();
@@ -184,6 +186,7 @@ public class FindBooks extends Activity {
     	        	if (entity != null) {
     	        		responseBody = EntityUtils.toString(entity, encoding);
     					entity.consumeContent();
+    					bHttpConnectSuccess = true;
     	        	}
     			}
     		} catch (ClientProtocolException e) {
@@ -213,6 +216,31 @@ public class FindBooks extends Activity {
     		
     		return real_url;
     	}
+
+        private static final String FINDBOOK_TITLE_START_TAG = "<span style=\"text-decoration:underline\">";
+        private static final String FINDBOOK_TITLE_END_TAG = "</span>";
+        
+        private boolean parseInfoFromFindbook(String webpage) {
+    		if (webpage == null) {
+    			return false;
+    		}
+    		
+    		if (webpage.length() == 0) {
+    			return false;
+    		}
+    		
+    		int start_1 = webpage.indexOf(FINDBOOK_TITLE_START_TAG);
+    		int end_1 = webpage.indexOf(FINDBOOK_TITLE_END_TAG, start_1);
+    		if (start_1 != -1 && end_1 != -1) {
+    			title = webpage.substring(start_1 + FINDBOOK_TITLE_START_TAG.length(), end_1);
+    		}
+    		
+    		if (title == null) {
+    			return false;
+    		}
+    		
+    		return true;
+        }
          
         private static final String SANMIN_URL_START_TAG = "page-product.asp?pid=";
         private static final String SANMIN_URL_END_TAG = "\">";
@@ -220,7 +248,7 @@ public class FindBooks extends Activity {
         private static final String SANMIN_PRICE_START_TAG = "<span class=\"price\">";
         private static final String SANMIN_PRICE_END_TAG = "</span>元";
         
-    	private boolean parseInfoFromSanmin(String isbn, String webpage) {
+    	private boolean parseInfoFromSanmin(String webpage) {
     		if (webpage == null) {
     			return false;
     		}
@@ -267,7 +295,7 @@ public class FindBooks extends Activity {
         private static final String ESLITE_PRICE_START_TAG = "NT$<span class=\"price_sale\">";
         private static final String ESLITE_PRICE_END_TAG = "元</span>";
         
-    	private boolean parseInfoFromEslite(String isbn, String webpage) {
+    	private boolean parseInfoFromEslite(String webpage) {
     		if (webpage == null) {
     			return false;
     		}
@@ -311,7 +339,7 @@ public class FindBooks extends Activity {
         private static final String KINGSTONE_PRICE_START_TAG = "<span class=\"price\">";
         private static final String KINGSTONE_PRICE_END_TAG = "</span>";
         
-    	private boolean parseInfoFromKingstone(String isbn, String webpage) {
+    	private boolean parseInfoFromKingstone(String webpage) {
     		if (webpage == null) {
     			return false;
     		}
@@ -357,7 +385,7 @@ public class FindBooks extends Activity {
         private static final String BOOKS_PRICE_START_TAG_3 = "<b>";
         private static final String BOOKS_PRICE_END_TAG = "</b>元</strong>";
         
-    	private boolean parseInfoFromBooks(String isbn, String webpage) {
+    	private boolean parseInfoFromBooks(String webpage) {
     		if (webpage == null) {
     			return false;
     		}
@@ -419,20 +447,21 @@ public class FindBooks extends Activity {
 				Log.d(TAG, "Findbook: ");
 				url_store = String.format(URL_FINDBOOK, isbn); 
 				webpage = retriveWebPage(url_store, "UTF-8");		
+				bProcess = parseInfoFromFindbook(webpage);
 				break;
 				
 			case BOOKSTORE_BOOKS:		
 				Log.d(TAG, "Books: ");
 				url_store = String.format(URL_BOOKS, isbn); 
 				webpage = retriveWebPage(url_store, "Big5");
-				bProcess = parseInfoFromBooks(isbn, webpage);
+				bProcess = parseInfoFromBooks(webpage);
 				break;
 				
 			case BOOKSTORE_ESLITE:		
 				Log.d(TAG, "Eslite: ");
 				url_store = String.format(URL_ESLITE, isbn); 
 				webpage = retriveWebPage(url_store, "UTF-8");	
-				bProcess = parseInfoFromEslite(isbn, webpage);
+				bProcess = parseInfoFromEslite(webpage);
 				break;
 				
 			case BOOKSTORE_SANMIN:	
@@ -443,7 +472,7 @@ public class FindBooks extends Activity {
 				if (url_store != null) {
 					Log.d(TAG, "url:" + url_store);
 					webpage = retriveWebPage(url_store, "UTF-8");	
-					bProcess = parseInfoFromSanmin(isbn, webpage);
+					bProcess = parseInfoFromSanmin(webpage);
 				}
 				break;
 				
@@ -451,7 +480,7 @@ public class FindBooks extends Activity {
 				Log.d(TAG, "Kingstone: ");
 				url_store = String.format(URL_KINGSTONE, isbn); 
 				webpage = retriveWebPage(url_store, "UTF-8");			
-				bProcess = parseInfoFromKingstone(isbn, webpage);
+				bProcess = parseInfoFromKingstone(webpage);
 				break;
 				
 			case BOOKSTORE_TENLONG:		
@@ -479,7 +508,23 @@ public class FindBooks extends Activity {
             mFetchWebPageTask = null;
 			dismissProgressBar();
 			if (isSuccess == true) {
-    			mAdapter.updateBooks(isbn, nBookstore, title, url, price);
+				mAdapter.updateBooks(isbn, nBookstore, title, url, price);
+			} else {
+				if (bHttpConnectSuccess) {
+		            new AlertDialog.Builder(FindBooks.this)
+	            	.setTitle(R.string.error_text)
+	            	.setMessage(R.string.not_found_text)
+	            	.show();
+		            mAdapter.removeBook(isbn, nBookstore);
+				} else {
+					if (title != null) {
+						mAdapter.updateBooks(isbn, nBookstore, title, url, price);
+					}
+				}
+			}
+			
+			if (bHttpConnectSuccess) {
+				mAdapter.updateBooks(isbn, nBookstore, title, url, price);
 			}
 		}
 		
@@ -878,6 +923,37 @@ public class FindBooks extends Activity {
         	input.bookstore = bookstore;
             mBooks.add(0, input);
             notifyDataSetChanged();
+        }
+        
+        public void removeBook(String isbn, int bookstore) {
+        	SearchItems book = null;
+        	if (isbn == null) {
+        		return;
+        	}
+        	
+        	if (isbn.length() == 0) {
+        		return;
+        	}
+        	
+        	if (mBooks == null) {
+        		return;
+        	}
+        	
+        	book = mBooks.get(0);
+        	if (book == null) {
+        		return;
+        	}
+        	
+        	if (isbn.equals(book.isbn) && bookstore == book.bookstore) {
+        		mBooks.remove(0);
+        		return;
+        	}
+        	
+        	for (SearchItems si : mBooks) {
+        		if (si.isbn.equals(isbn) && si.bookstore == bookstore) {
+        			mBooks.remove(si);
+        		}
+        	}
         }
     }    
 }

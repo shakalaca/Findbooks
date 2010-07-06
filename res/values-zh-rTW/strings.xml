@@ -11,4 +11,8 @@
 
 	<string name="text_price_text">%s 元</string>
 	<string name="loading_text">載入中..</string>
+	
+	<string name="error_text">錯誤</string>
+	<string name="not_found_text">網站中無此書資料</string>
+	<string name="back_text">返回</string>
 </resources>
