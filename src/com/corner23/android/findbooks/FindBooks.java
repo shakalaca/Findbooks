@@ -213,7 +213,13 @@ public class FindBooks extends Activity {
     		
     		return real_url;
     	}
-
+         
+        private static final String SANMIN_URL_START_TAG = "page-product.asp?pid=";
+        private static final String SANMIN_URL_END_TAG = "\">";
+        private static final String SANMIN_TITLE_END_TAG = "</a>";
+        private static final String SANMIN_PRICE_START_TAG = "<span class=\"price\">";
+        private static final String SANMIN_PRICE_END_TAG = "</span>元";
+        
     	private boolean parseInfoFromSanmin(String isbn, String webpage) {
     		if (webpage == null) {
     			return false;
@@ -223,27 +229,27 @@ public class FindBooks extends Activity {
     			return false;
     		}
 
-    		int start_2 = webpage.indexOf("page-product.asp?pid=");
-    		int end_2 = webpage.indexOf("\">", start_2);
+    		int start_2 = webpage.indexOf(SANMIN_URL_START_TAG);
+    		int end_2 = webpage.indexOf(SANMIN_URL_END_TAG, start_2);
     		if (start_2 != -1 && end_2 != -1) {
     			url = "http://www.sanmin.com.tw/" + webpage.substring(start_2, end_2);
-    			Log.d(TAG, "url:" + url);
     		}
     		
-    		int start_3 = (end_2 == -1 ? -1 : (end_2 + 2));
-    		int end_3 = webpage.indexOf("</a>", start_3);
+    		int start_3 = (end_2 == -1 ? -1 : (end_2 + SANMIN_URL_END_TAG.length()));
+    		int end_3 = webpage.indexOf(SANMIN_TITLE_END_TAG, start_3);
     		if (start_3 != -1 && end_3 != -1) {
     			title = webpage.substring(start_3, end_3);
     		}
     		
-    		int start_4 = webpage.indexOf("<span class=\"price\">", end_3);
-    		int end_4 = webpage.indexOf("</span>元", start_4);
+    		int start_4 = webpage.indexOf(SANMIN_PRICE_START_TAG, end_3);
+    		int end_4 = webpage.indexOf(SANMIN_PRICE_END_TAG, start_4);
     		if (start_4 != -1 && end_4 != -1) {
-    			int pos_test = webpage.indexOf("<span class=\"price\">", start_4 + 1);
+    			// find next tag
+    			int pos_test = webpage.indexOf(SANMIN_PRICE_START_TAG, start_4 + 1);
     			if (pos_test != -1) {
     				start_4 = pos_test;
     			}
-    			price = webpage.substring(start_4 + 20, end_4);
+    			price = webpage.substring(start_4 + SANMIN_PRICE_START_TAG.length(), end_4);
     		}
     		
     		if (title != null && url != null) {
@@ -253,7 +259,14 @@ public class FindBooks extends Activity {
     		
     		return false;
     	}
-    	
+
+        private static final String ESLITE_URL_START_TAG = "tn15";
+        private static final String ESLITE_URL_START_TAG_2 = "<a href=\"http://";
+        private static final String ESLITE_URL_END_TAG = "\">";
+        private static final String ESLITE_TITLE_END_TAG = "</a>";
+        private static final String ESLITE_PRICE_START_TAG = "NT$<span class=\"price_sale\">";
+        private static final String ESLITE_PRICE_END_TAG = "元</span>";
+        
     	private boolean parseInfoFromEslite(String isbn, String webpage) {
     		if (webpage == null) {
     			return false;
@@ -263,26 +276,24 @@ public class FindBooks extends Activity {
     			return false;
     		}
 
-    		int start_1 = webpage.indexOf("tn15");
-    		int start_2 = webpage.indexOf("<a href=\"http://", start_1);
-    		int end_2 = webpage.indexOf("\">", start_2);
-    		
+    		int start_1 = webpage.indexOf(ESLITE_URL_START_TAG);
+    		int start_2 = webpage.indexOf(ESLITE_URL_START_TAG_2, start_1);
+    		int end_2 = webpage.indexOf(ESLITE_URL_END_TAG, start_2);
     		if (start_2 != -1 && end_2 != -1) {
-    			url = webpage.substring(start_2 + 9, end_2);
-    			Log.d(TAG, "url:" + url);
+    			url = webpage.substring(start_2 + 9, end_2); // 9 is length of "<a href=\""
     		}
     		
-    		int start_3 = (end_2 == -1 ? -1 : (end_2 + 2));
-    		int end_3 = webpage.indexOf("</a>", start_3);
+    		int start_3 = (end_2 == -1 ? -1 : (end_2 + ESLITE_URL_END_TAG.length()));
+    		int end_3 = webpage.indexOf(ESLITE_TITLE_END_TAG, start_3);
     		if (start_3 != -1 && end_3 != -1) {
     			title = webpage.substring(start_3, end_3).trim();
     			title = title.substring(0, title.length() - 1);
     		}
     		
-    		int start_4 = webpage.indexOf("NT$<span class=\"price_sale\">", end_3);
-    		int end_4 = webpage.indexOf("元</span>", start_4);
+    		int start_4 = webpage.indexOf(ESLITE_PRICE_START_TAG, end_3);
+    		int end_4 = webpage.indexOf(ESLITE_PRICE_END_TAG, start_4);
     		if (start_4 != -1 && end_4 != -1) {
-    			price = webpage.substring(start_4 + 28, end_4);
+    			price = webpage.substring(start_4 + ESLITE_PRICE_START_TAG.length(), end_4);
     		}
     		
     		if (title != null && url != null) {
@@ -293,6 +304,13 @@ public class FindBooks extends Activity {
     		return false;
     	}
     	
+        private static final String KINGSTONE_URL_START_TAG = "bc-info";
+        private static final String KINGSTONE_URL_START_TAG_2 = "<h1><a href=\"";
+        private static final String KINGSTONE_URL_END_TAG = "\">";
+        private static final String KINGSTONE_TITLE_END_TAG = "</a>";
+        private static final String KINGSTONE_PRICE_START_TAG = "<span class=\"price\">";
+        private static final String KINGSTONE_PRICE_END_TAG = "</span>";
+        
     	private boolean parseInfoFromKingstone(String isbn, String webpage) {
     		if (webpage == null) {
     			return false;
@@ -302,25 +320,23 @@ public class FindBooks extends Activity {
     			return false;
     		}
 
-    		int start_1 = webpage.indexOf("bc-info");
-    		int start_2 = webpage.indexOf("<h1><a href=\"", start_1);
-    		int end_2 = webpage.indexOf("\">", start_2);
-    		
+    		int start_1 = webpage.indexOf(KINGSTONE_URL_START_TAG);
+    		int start_2 = webpage.indexOf(KINGSTONE_URL_START_TAG_2, start_1);
+    		int end_2 = webpage.indexOf(KINGSTONE_URL_END_TAG, start_2);
     		if (start_2 != -1 && end_2 != -1) {
-    			url = webpage.substring(start_2 + 13, end_2);
-    			Log.d(TAG, "url:" + url);
+    			url = webpage.substring(start_2 + KINGSTONE_URL_START_TAG_2.length(), end_2);
     		}
     		
-    		int start_3 = (end_2 == -1 ? -1 : (end_2 + 2));
-    		int end_3 = webpage.indexOf("</a>", start_3);
+    		int start_3 = (end_2 == -1 ? -1 : (end_2 + KINGSTONE_URL_END_TAG.length()));
+    		int end_3 = webpage.indexOf(KINGSTONE_TITLE_END_TAG, start_3);
     		if (start_3 != -1 && end_3 != -1) {
     			title = decode(webpage.substring(start_3, end_3), ' ');
     		}
     		
-    		int start_4 = webpage.indexOf("<span class=\"price\">", end_3);
-    		int end_4 = webpage.indexOf("</span>", start_4);
+    		int start_4 = webpage.indexOf(KINGSTONE_PRICE_START_TAG, end_3);
+    		int end_4 = webpage.indexOf(KINGSTONE_PRICE_END_TAG, start_4);
     		if (start_4 != -1 && end_4 != -1) {
-    			price = webpage.substring(start_4 + 20, end_4);
+    			price = webpage.substring(start_4 + KINGSTONE_PRICE_START_TAG.length(), end_4);
     		}
     		
     		if (title != null && url != null) {
@@ -331,6 +347,16 @@ public class FindBooks extends Activity {
     		return false;
     	}
     	
+        private static final String BOOKS_URL_START_TAG = "mid_image";
+        private static final String BOOKS_URL_START_TAG_2 = "item=";
+        private static final String BOOKS_URL_END_TAG = "\"";
+        private static final String BOOKS_TITLE_START_TAG = "title=\"";
+        private static final String BOOKS_TITLE_END_TAG = "\">";
+        private static final String BOOKS_PRICE_START_TAG = "優惠價：<strong><b>";
+        private static final String BOOKS_PRICE_START_TAG_2 = "優惠價：<b>";
+        private static final String BOOKS_PRICE_START_TAG_3 = "<b>";
+        private static final String BOOKS_PRICE_END_TAG = "</b>元</strong>";
+        
     	private boolean parseInfoFromBooks(String isbn, String webpage) {
     		if (webpage == null) {
     			return false;
@@ -340,29 +366,33 @@ public class FindBooks extends Activity {
     			return false;
     		}
 
-    		int start_1 = webpage.indexOf("mid_image");
-    		int start_2 = webpage.indexOf("item=", start_1);
-    		int end_2 = webpage.indexOf("\"", start_2);
-    		
+    		int start_1 = webpage.indexOf(BOOKS_URL_START_TAG);
+    		int start_2 = webpage.indexOf(BOOKS_URL_START_TAG_2, start_1);
+    		int end_2 = webpage.indexOf(BOOKS_URL_END_TAG, start_2);
     		if (start_2 != -1 && end_2 != -1) {
-    			String itemId = webpage.substring(start_2 + 5, end_2);
+    			String itemId = webpage.substring(start_2 + BOOKS_URL_START_TAG_2.length(), end_2);
     			url = String.format(URL_BOOKS_BOOK, itemId);
     		}
     		
-    		int start_3 = webpage.indexOf("title=\"", start_1);
-    		int end_3 = webpage.indexOf("\">", start_3);
+    		int start_3 = webpage.indexOf(BOOKS_TITLE_START_TAG, start_1);
+    		int end_3 = webpage.indexOf(BOOKS_TITLE_END_TAG, start_3);
     		if (start_3 != -1 && end_3 != -1) {
-    			title = webpage.substring(start_3 + 7, end_3);
+    			title = webpage.substring(start_3 + BOOKS_TITLE_START_TAG.length(), end_3);
     		}
     		
-    		int start_4 = webpage.indexOf("優惠價：<strong><b>", end_3);
-    		int end_4 = webpage.indexOf("</b>元</strong>", start_4);
+    		int shift = BOOKS_PRICE_START_TAG.length();
+    		int start_4 = webpage.indexOf(BOOKS_PRICE_START_TAG, end_3);
+    		if (start_4 == -1) {
+    			shift = BOOKS_PRICE_START_TAG_2.length();
+    			start_4 = webpage.indexOf(BOOKS_PRICE_START_TAG_2, end_3);
+    		}
+    		int end_4 = webpage.indexOf(BOOKS_PRICE_END_TAG, start_4);
     		if (start_4 != -1 && end_4 != -1) {
-    			int pos_test = webpage.indexOf("<b>", start_4 + 15);
+    			int pos_test = webpage.indexOf(BOOKS_PRICE_START_TAG_3, start_4 + shift);
     			if (pos_test != -1 && pos_test < end_4) {
-    				start_4 = pos_test + 3;
+    				start_4 = pos_test + BOOKS_PRICE_START_TAG_3.length();
     			} else {
-    				start_4 = start_4 + 15;
+    				start_4 = start_4 + shift;
     			}
     			price = webpage.substring(start_4, end_4);
     		}
