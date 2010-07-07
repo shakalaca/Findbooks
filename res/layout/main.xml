@@ -1,58 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
-	<Spinner 
-		android:id="@+id/spinner_store" 
-		android:layout_width="fill_parent" 
-		android:layout_height="wrap_content" 
-		android:layout_weight="1" />
-	<Button
-		android:id="@+id/btn_scan_find" 
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" 
-		android:layout_below="@id/spinner_store"
-		android:text="@string/btn_scan_find_text" />
+    android:layout_height="fill_parent" 
+    android:gravity="center"
+    android:orientation="vertical" >
 	<LinearLayout
 		android:id="@+id/body_container"
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content"
-		android:layout_below="@id/btn_scan_find"
 		android:orientation="horizontal" >
-		<EditText 
-			android:id="@+id/edit_isbn" 
-			android:layout_width="fill_parent" 
-			android:layout_height="wrap_content" 
+		<Button
+			android:id="@+id/btn_scan_find" 
+			android:layout_width="fill_parent"
+			android:layout_height="100dip" 
 			android:layout_weight="1"
-			android:layout_gravity="center_horizontal"
-			android:hint="@string/edit_isbn_hint_text"
-			android:inputType="number"
-			android:maxLength="13" />
+			android:text="@string/btn_scan_find_text" />
 		<Button
 			android:id="@+id/btn_find" 
 			android:layout_width="fill_parent"
-			android:layout_height="wrap_content" 
-			android:layout_weight="2"
-			android:layout_gravity="center_horizontal"
+			android:layout_height="100dip" 
+			android:layout_weight="1"
 			android:text="@string/btn_find_text" />
 	</LinearLayout>
-	<Button
-		android:id="@+id/btn_isbn10" 
-		android:layout_width="fill_parent"
+	<EditText 
+		android:id="@+id/edit_isbn" 
+		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content" 
-		android:layout_below="@id/body_container"
-		android:text="@string/btn_convert_isbn10_text" />
-	<TextView
-		android:id="@+id/text_recent" 
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" 
-		android:layout_below="@id/btn_isbn10"
-		android:layout_centerHorizontal="true"
-		android:text="@string/text_recent_text" />
-    <ListView 
-    	android:id="@+id/list_isbn"
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content"
-        android:layout_below="@id/text_recent" />
-</RelativeLayout>
+		android:hint="@string/edit_isbn_hint_text"
+		android:inputType="number"
+		android:maxLength="13" />
+</LinearLayout>
 

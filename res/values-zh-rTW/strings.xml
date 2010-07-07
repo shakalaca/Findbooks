@@ -6,7 +6,7 @@
     
     <string name="edit_isbn_hint_text">輸入 ISBN</string>
     <string name="btn_find_text">尋找</string>
-    <string name="btn_scan_find_text">掃描條碼後尋找</string>
+    <string name="btn_scan_find_text">掃描條碼</string>
 	<string name="text_recent_text">最近查詢:</string>
 
 	<string name="text_price_text">%s 元</string>
