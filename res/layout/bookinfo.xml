@@ -2,34 +2,42 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
-	<RelativeLayout
+	<LinearLayout
 		android:id="@+id/info_container"
     	android:layout_width="fill_parent"
-    	android:layout_height="wrap_content" >
-    <ImageView
-		android:id="@+id/image_cover" 
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" 
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentTop="true"
-	/>
-	<TextView
-		android:id="@+id/text_title" 
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" 
-		android:layout_toRightOf="@id/image_cover"
-		android:layout_alignParentTop="true"
-	    android:textAppearance="?android:attr/textAppearanceLarge"
-	/>
-	<TextView
-		android:id="@+id/text_price" 
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" 
-		android:layout_toRightOf="@id/image_cover"
-        android:layout_below="@id/text_title"
-	    android:textAppearance="?android:attr/textAppearanceMedium"
-	/>
-	</RelativeLayout>
+    	android:layout_height="wrap_content" 
+    	android:layout_margin="10dip"
+    	android:orientation="horizontal" >
+	    <ImageView
+			android:id="@+id/image_cover" 
+	    	android:layout_width="fill_parent"
+			android:layout_height="wrap_content" 
+			android:layout_weight="1"
+		/>
+		<LinearLayout
+			android:id="@+id/title_price_container"
+	    	android:layout_width="fill_parent"
+	    	android:layout_height="fill_parent" 
+			android:layout_weight="1"
+	    	android:orientation="vertical" >
+			<TextView
+				android:id="@+id/text_title" 
+				android:layout_width="fill_parent"
+		    	android:layout_height="fill_parent" 
+				android:layout_weight="1"
+				android:gravity="center_horizontal|center_vertical"
+			    android:textAppearance="?android:attr/textAppearanceMedium"
+			/>
+			<TextView
+				android:id="@+id/text_price" 
+				android:layout_width="fill_parent"
+	    		android:layout_height="fill_parent" 
+				android:layout_weight="1"
+				android:gravity="center_horizontal|center_vertical"
+			    android:textAppearance="?android:attr/textAppearanceMedium"
+			/>
+		</LinearLayout>
+	</LinearLayout>
     <ListView 
     	android:id="@+id/list_isbn"
         android:layout_width="fill_parent" 
