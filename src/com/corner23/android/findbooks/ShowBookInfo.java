@@ -37,6 +37,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -998,6 +999,9 @@ public class ShowBookInfo extends Activity {
         if (settings.getBoolean("pref_enable_tenlong", true)) {
         	mStores |= 1 << BOOKSTORE_TENLONG - BOOKSTORE_START;
         }
+
+		LinearLayout info_container = (LinearLayout) findViewById (R.id.info_container);
+		info_container.setVisibility(bFetchBookInfo ? View.VISIBLE : View.GONE);
 
         if (mStores == 0) {
         	
