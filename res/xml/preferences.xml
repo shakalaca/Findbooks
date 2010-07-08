@@ -1,0 +1,46 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<CheckBoxPreference
+		android:key="pref_load_info" 
+		android:title="@string/pref_load_info_title_text"
+		android:summary="@string/pref_load_info_summary_text"
+		android:defaultValue="true" />
+
+	<PreferenceScreen android:title="@string/pref_chosen_bookstore_text">
+		<CheckBoxPreference 
+			android:key="pref_enable_findbook"
+			android:title="@string/pref_store_findbook_title_text"
+			android:summary="@string/pref_store_findbook_summary_text"
+			android:defaultValue="true" />
+
+		<CheckBoxPreference 
+			android:key="pref_enable_eslite"
+			android:title="@string/pref_store_eslite_title_text"
+			android:summary="@string/pref_store_eslite_summary_text"
+			android:defaultValue="true" />
+
+		<CheckBoxPreference 
+			android:key="pref_enable_books"
+			android:title="@string/pref_store_books_title_text"
+			android:summary="@string/pref_store_books_summary_text"
+			android:defaultValue="true" />
+
+		<CheckBoxPreference 
+			android:key="pref_enable_sanmin"
+			android:title="@string/pref_store_sanmin_title_text"
+			android:summary="@string/pref_store_sanmin_summary_text"
+			android:defaultValue="true" />
+
+		<CheckBoxPreference 
+			android:key="pref_enable_kingstone"
+			android:title="@string/pref_store_kingstone_title_text"
+			android:summary="@string/pref_store_kingstone_summary_text"
+			android:defaultValue="true" />
+
+		<CheckBoxPreference 
+			android:key="pref_enable_tenlong"
+			android:title="@string/pref_store_tenlong_title_text"
+			android:summary="@string/pref_store_tenlong_summary_text"
+			android:defaultValue="true" />
+	</PreferenceScreen>
+
+</PreferenceScreen>

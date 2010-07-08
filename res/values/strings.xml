@@ -16,4 +16,24 @@
 	<string name="error_text">Error</string>
 	<string name="not_found_text">Book not found in this web</string>
 	<string name="back_text">Back</string>
+	
+	<string name="menu_settings_text">Preferences</string>
+	<string name="menu_about_text">About</string>
+	
+	<string name="pref_load_info_title_text">Load cover / price info</string>
+	<string name="pref_load_info_summary_text">Disable for faster price result</string>
+
+	<string name="pref_chosen_bookstore_text">Select bookstores</string>
+	<string name="pref_store_findbook_title_text">Findbook</string>
+	<string name="pref_store_findbook_summary_text">findbook.tw</string>
+	<string name="pref_store_eslite_title_text">Eslite</string>
+	<string name="pref_store_eslite_summary_text">www.eslite.com</string>
+	<string name="pref_store_books_title_text">Books</string>
+	<string name="pref_store_books_summary_text">www.books.com.tw</string>
+	<string name="pref_store_sanmin_title_text">Sanmin</string>
+	<string name="pref_store_sanmin_summary_text">www.sanmin.com.tw</string>
+	<string name="pref_store_kingstone_title_text">Kingstone</string>
+	<string name="pref_store_kingstone_summary_text">www.kingstone.com.tw</string>
+	<string name="pref_store_tenlong_title_text">Tenlong</string>
+	<string name="pref_store_tenlong_summary_text">www.tenlong.com.tw</string>
 </resources>

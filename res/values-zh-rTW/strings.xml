@@ -16,4 +16,18 @@
 	<string name="error_text">錯誤</string>
 	<string name="not_found_text">網站中無此書資料</string>
 	<string name="back_text">返回</string>
+
+	<string name="menu_settings_text">設定</string>
+	<string name="menu_about_text">關於</string>
+
+	<string name="pref_load_info_title_text">載入封面/原價資訊</string>
+	<string name="pref_load_info_summary_text">取消可較快得到價格結果</string>
+
+	<string name="pref_chosen_bookstore_text">選擇網路書店</string>
+	<string name="pref_store_findbook_title_text">翻書客</string>
+	<string name="pref_store_eslite_title_text">誠品</string>
+	<string name="pref_store_books_title_text">博客來</string>
+	<string name="pref_store_sanmin_title_text">三民</string>
+	<string name="pref_store_kingstone_title_text">金石堂</string>
+	<string name="pref_store_tenlong_title_text">天瓏</string>
 </resources>

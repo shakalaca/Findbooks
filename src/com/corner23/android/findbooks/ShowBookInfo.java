@@ -22,6 +22,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
@@ -50,7 +51,7 @@ public class ShowBookInfo extends Activity {
 	private static final int BOOKSTORE_SANMIN = 4;
 	private static final int BOOKSTORE_KINGSTONE = 5;
 	private static final int BOOKSTORE_TENLONG = 6;
-	private static final int BOOKSTORE_END = BOOKSTORE_TENLONG;
+	private static final int BOOKSTORE_END = BOOKSTORE_TENLONG + 1;
 	
 	private static final String URL_FINDBOOK = "http://findbook.tw/m/book/%s/price";
 	private static final String URL_ESLITE = "http://www.eslite.com/search_pro.aspx?query=%s";
@@ -74,10 +75,11 @@ public class ShowBookInfo extends Activity {
 	private boolean mResumeFetchWebPageTask = false;
 	private boolean mResumeFetchBookInfoTask = false;
 	private String mISBN = null;
-	private int mStore = BOOKSTORE_START;
+	private int mCurrentStore = BOOKSTORE_START;
 	private String mPrice = null;
 	private String mTitle = null;
 	private Bitmap mCover = null;
+	private int mStores = 0;
 	
 	private boolean bUseSystemProxy = true;
 	
@@ -178,6 +180,7 @@ public class ShowBookInfo extends Activity {
 	}
 
 	private class FetchBookInfoTask extends AsyncTask<String, Void, Boolean> {
+		private String isbn = null;
 
         private String retriveWebPage(String url, String encoding) {
     		if (url == null) {
@@ -216,7 +219,7 @@ public class ShowBookInfo extends Activity {
         private static final String PRICE_FINDBOOK_END_TAG = "</span>";
         private static final String COVER_FINDBOOK_URL = "http://static.findbook.tw/image/book/%s/large";
 		
-        private boolean retrieveCoverFromFindbook(String isbn) {
+        private boolean retrieveCoverFromFindbook() {
 			String url_store = String.format(URL_FINDBOOK, isbn);
 			String webpage = retriveWebPage(url_store, "UTF-8");
 			if (webpage == null) {
@@ -240,7 +243,7 @@ public class ShowBookInfo extends Activity {
 			return false;
         }
         
-        private boolean retrieveTitlePriceFromFindbook(String isbn) {
+        private boolean retrieveTitlePriceFromFindbook() {
 			String url_store = String.format(URL_FINDBOOK, isbn);
 			String webpage = retriveWebPage(url_store, "UTF-8");
 			if (webpage == null) {
@@ -277,7 +280,7 @@ public class ShowBookInfo extends Activity {
         private static final String PRICE_BOOKS_START_TAG = "原價：<s>";
         private static final String PRICE_BOOKS_END_TAG = "元</s>";
         
-    	private boolean retrieveCoverFromBooks(String isbn) {
+    	private boolean retrieveCoverFromBooks() {
 			String url_store = String.format(URL_BOOKS, isbn); 
 			String webpage = retriveWebPage(url_store, "Big5");
 			if (webpage == null) {
@@ -305,7 +308,7 @@ public class ShowBookInfo extends Activity {
 			return false;
     	}
     	
-    	private boolean retrieveTitlePriceFromBooks(String isbn) {
+    	private boolean retrieveTitlePriceFromBooks() {
 			String url_store = String.format(URL_BOOKS, isbn); 
 			String webpage = retriveWebPage(url_store, "Big5");
 			if (webpage == null) {
@@ -341,19 +344,16 @@ public class ShowBookInfo extends Activity {
     	        
 		@Override
 		protected Boolean doInBackground(String... arg0) {
-			String isbn = arg0[0];
-			if (retrieveCoverFromFindbook(isbn) == false) {
-				retrieveCoverFromBooks(isbn);
+			isbn = arg0[0];
+			if (retrieveCoverFromFindbook() == false) {
+				retrieveCoverFromBooks();
 			}
 			
-			if (retrieveTitlePriceFromFindbook(isbn) == false) {
-				retrieveTitlePriceFromBooks(isbn);
+			if (retrieveTitlePriceFromFindbook() == false) {
+				retrieveTitlePriceFromBooks();
 			}
 			
 			return true;
-		}
-		
-		protected void onPreExecute() {
 		}
 		
     	protected void onPostExecute(Boolean bSuccess) {
@@ -371,7 +371,7 @@ public class ShowBookInfo extends Activity {
 	        	mPriceTextView.setText(getResources().getString(R.string.text_price_text, mPrice));
 			}
 			
-			goFetchWebPageTask(mISBN, mStore + "");
+			goFetchWebPageTask(isbn);
 		}
 		
 		protected void onCancelled() {
@@ -410,7 +410,6 @@ public class ShowBookInfo extends Activity {
     	private String title = null;
     	private String isbn = null;
     	private String price = null;
-    	private int nBookstore;
     	private boolean bHttpConnectSuccess = false;
              
         private String retriveWebPage(String url, String encoding) {
@@ -684,12 +683,25 @@ public class ShowBookInfo extends Activity {
     	@Override
 		protected Boolean doInBackground(String... params) {
 			isbn = params[0];
-			nBookstore = Integer.parseInt(params[1]);
 			String url_store = null;
 			String webpage = null;
 			boolean bProcess = false;
 
-			switch (nBookstore) {
+			while (mCurrentStore < BOOKSTORE_END) {
+				int shift = mCurrentStore - BOOKSTORE_START;
+				if (((mStores >> shift) & 1) == 1) {
+					break;
+				}
+				mCurrentStore++;
+			}
+			
+			Log.d(TAG, "store:" + mCurrentStore);
+			
+			if (mCurrentStore == BOOKSTORE_END) {
+				return false;
+			}
+			
+			switch (mCurrentStore) {
 			default:
 			case BOOKSTORE_FINDBOOK:
 				Log.d(TAG, "Findbook: ");
@@ -745,26 +757,23 @@ public class ShowBookInfo extends Activity {
 			return bProcess;
 		}
 		
-    	protected void onPreExecute() {
-    	}
-
     	protected void onPostExecute(Boolean isSuccess) {
             mFetchWebPageTask = null;
-			if (isSuccess != true) {
-				if (bHttpConnectSuccess) {
-					title = getResources().getString(R.string.not_found_text);
-				}
-			}
-			
-			if (title != null) {
-				mAdapter.addBooks(isbn, nBookstore, title, url, price);
-			}
-
-			if (mStore < BOOKSTORE_END) {
-				mStore++;
-				goFetchWebPageTask(mISBN, mStore + "");
-			} else {
+			if (mCurrentStore >= BOOKSTORE_END) {
 				dismissProgressBar();
+			} else {
+				if (isSuccess != true) {
+					if (bHttpConnectSuccess) {
+						title = getResources().getString(R.string.not_found_text);
+					}
+				}
+				
+				if (title != null) {
+					mAdapter.addBooks(isbn, mCurrentStore, title, url, price);
+				}
+	
+				mCurrentStore++;
+				goFetchWebPageTask(isbn);
 			}
 		}
 		
@@ -777,19 +786,19 @@ public class ShowBookInfo extends Activity {
 		}
     }
     
-    private void goFetchWebPageTask(String isbn, String store) {
-    	if (isbn == null || store == null) {
+    private void goFetchWebPageTask(String isbn) {
+    	if (isbn == null) {
     		return;
     	}
     	
-    	if (isbn.length() == 0 || store.length() == 0) {
+    	if (isbn.length() == 0) {
     		return;
     	}
     	
     	displayProgressBar(R.string.loading_price_info_text);
 		try {
 			mFetchWebPageTask = new FetchWebPageTask();
-			mFetchWebPageTask.execute(isbn, store);
+			mFetchWebPageTask.execute(isbn);
 		} catch(RejectedExecutionException e) {
 			dismissProgressBar();
 			e.printStackTrace();
@@ -827,7 +836,7 @@ public class ShowBookInfo extends Activity {
 		if (mResumeFetchBookInfoTask) {
 			goFetchBookInfoTask(mISBN);
 		} else if (mResumeFetchWebPageTask) {
-			goFetchWebPageTask(mISBN, mStore + "");
+			goFetchWebPageTask(mISBN);
 		}
 
 		try {
@@ -855,7 +864,8 @@ public class ShowBookInfo extends Activity {
 		Log.d(TAG, "onRestoreInstanceState");
 		if (savedInstanceState != null) {
 			mISBN = savedInstanceState.getString("mISBN");
-			mStore = savedInstanceState.getInt("mStore");
+			mStores = savedInstanceState.getInt("mStores");
+			mCurrentStore = savedInstanceState.getInt("mCurrentStore");
 			mResumeFetchWebPageTask = savedInstanceState.getBoolean("mResumeFetchWebPageTask");
 			mResumeFetchBookInfoTask = savedInstanceState.getBoolean("mResumeFetchBookInfoTask");
 			
@@ -881,7 +891,8 @@ public class ShowBookInfo extends Activity {
 			outState.putBoolean("mResumeFetchWebPageTask", true);
 		}
 		outState.putString("mISBN", mISBN);
-		outState.putInt("mStore", mStore);
+		outState.putInt("mStores", mStores);
+		outState.putInt("mCurrentStore", mCurrentStore);
 		outState.putString("mPrice", mPrice);
 		outState.putString("mTitle", mTitle);
 		super.onSaveInstanceState(outState);
@@ -967,8 +978,36 @@ public class ShowBookInfo extends Activity {
 			}
         });        
 
-        if (savedInstanceState == null) {
-        	goFetchBookInfoTask(mISBN);
+        SharedPreferences settings = getSharedPreferences("Findbooks", 0);
+        boolean bFetchBookInfo = settings.getBoolean("pref_load_info", true);
+        if (settings.getBoolean("pref_enable_findbook", true)) {
+        	mStores |= 1 << BOOKSTORE_FINDBOOK - BOOKSTORE_START;
+        }
+        if (settings.getBoolean("pref_enable_eslite", true)) {
+        	mStores |= 1 << BOOKSTORE_ESLITE - BOOKSTORE_START;
+        }
+        if (settings.getBoolean("pref_enable_books", true)) {
+        	mStores |= 1 << BOOKSTORE_BOOKS - BOOKSTORE_START;
+        }
+        if (settings.getBoolean("pref_enable_sanmin", true)) {
+        	mStores |= 1 << BOOKSTORE_SANMIN - BOOKSTORE_START;
+        }
+        if (settings.getBoolean("pref_enable_kingstone", true)) {
+        	mStores |= 1 << BOOKSTORE_KINGSTONE - BOOKSTORE_START;
+        }
+        if (settings.getBoolean("pref_enable_tenlong", true)) {
+        	mStores |= 1 << BOOKSTORE_TENLONG - BOOKSTORE_START;
+        }
+
+        if (mStores == 0) {
+        	
+        }
+        else if (savedInstanceState == null) {
+        	if (bFetchBookInfo) {
+            	goFetchBookInfoTask(mISBN);
+        	} else {
+        		goFetchWebPageTask(mISBN);
+        	}
         }
 	}
 

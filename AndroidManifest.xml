@@ -12,6 +12,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ShowBookInfo" />
+        <activity android:name=".Settings" />
     </application>
     
 	<supports-screens 
