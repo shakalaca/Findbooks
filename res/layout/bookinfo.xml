@@ -6,7 +6,8 @@
 		android:id="@+id/info_container"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content" 
-    	android:layout_margin="10dip"
+    	android:layout_marginTop="10dip"
+    	android:layout_marginBottom="10dip"
     	android:orientation="horizontal" >
 	    <ImageView
 			android:id="@+id/image_cover" 
