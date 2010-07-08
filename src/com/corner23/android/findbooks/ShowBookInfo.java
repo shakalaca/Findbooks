@@ -205,20 +205,22 @@ public class ShowBookInfo extends Activity {
         private static final String COVER_FINDBOOK_URL = "http://static.findbook.tw/image/book/%s/large";
 		
         private boolean retrieveCoverFromFindbook(String isbn) {
-	        URL url = null;
-	        Bitmap bitmap = null;
-	        
-			try {
-				String url_store = String.format(URL_FINDBOOK, isbn);
-				String webpage = retriveWebPage(url_store, "UTF-8");
-				if (webpage != null) {
-					url = new URL(String.format(COVER_FINDBOOK_URL, isbn));
-					bitmap = BitmapCache.getInstance(bUseSystemProxy).load(url);
-					if (bitmap != null) {
-						mCover = bitmap;
-						return true;
-					}
-				}									
+			String url_store = String.format(URL_FINDBOOK, isbn);
+			String webpage = retriveWebPage(url_store, "UTF-8");
+			if (webpage == null) {
+				return false;
+			}
+			
+    		if (webpage.length() == 0) {
+    			return false;
+    		}
+
+    		try {
+				URL url = new URL(String.format(COVER_FINDBOOK_URL, isbn));
+				mCover = BitmapCache.getInstance(bUseSystemProxy).load(url);
+				if (mCover != null) {
+					return true;
+				}
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
@@ -229,23 +231,28 @@ public class ShowBookInfo extends Activity {
         private boolean retrieveTitlePriceFromFindbook(String isbn) {
 			String url_store = String.format(URL_FINDBOOK, isbn);
 			String webpage = retriveWebPage(url_store, "UTF-8");
-			if (webpage != null) {
-				int start_1 = webpage.indexOf(TITLE_FINDBOOK_START_TAG);
-				int end_1 = webpage.indexOf(TITLE_FINDBOOK_END_TAG, start_1);
-				if (start_1 != -1 && end_1 != -1) {
-					mTitle = decode(webpage.substring(start_1 + TITLE_FINDBOOK_START_TAG.length(), end_1), ' ');
-				}
+			if (webpage == null) {
+				return false;
+			}
+			
+    		if (webpage.length() == 0) {
+    			return false;
+    		}
+			int start_1 = webpage.indexOf(TITLE_FINDBOOK_START_TAG);
+			int end_1 = webpage.indexOf(TITLE_FINDBOOK_END_TAG, start_1);
+			if (start_1 != -1 && end_1 != -1) {
+				mTitle = decode(webpage.substring(start_1 + TITLE_FINDBOOK_START_TAG.length(), end_1), ' ');
+			}
 						
-				int start_2 = webpage.indexOf(PRICE_FINDBOOK_START_TAG);
-				int end_2 = webpage.indexOf(PRICE_FINDBOOK_END_TAG, start_2);
-				if (start_2 != -1 && end_2 != -1) {
-					mPrice = webpage.substring(start_2 + PRICE_FINDBOOK_START_TAG.length(), end_2);
-				}
+			int start_2 = webpage.indexOf(PRICE_FINDBOOK_START_TAG);
+			int end_2 = webpage.indexOf(PRICE_FINDBOOK_END_TAG, start_2);
+			if (start_2 != -1 && end_2 != -1) {
+				mPrice = webpage.substring(start_2 + PRICE_FINDBOOK_START_TAG.length(), end_2);
+			}
 				
-				if (mTitle != null && mPrice != null) {
-					return true;
-				}
-			}									
+			if (mTitle != null && mPrice != null) {
+				return true;
+			}
 
 			return false;
         }
@@ -258,15 +265,15 @@ public class ShowBookInfo extends Activity {
         private static final String PRICE_BOOKS_START_TAG = "原價：<s>";
         private static final String PRICE_BOOKS_END_TAG = "元</s>";
         
-    	private void retrieveCoverFromBooks(String isbn) {
+    	private boolean retrieveCoverFromBooks(String isbn) {
 			String url_store = String.format(URL_BOOKS, isbn); 
 			String webpage = retriveWebPage(url_store, "Big5");
 			if (webpage == null) {
-    			return;
+    			return false;
     		}
     		
     		if (webpage.length() == 0) {
-    			return;
+    			return false;
     		}
 
 			int start_1 = webpage.indexOf(COVER_BOOKS_START_TAG);
@@ -275,26 +282,31 @@ public class ShowBookInfo extends Activity {
 				try {
 			        URL url = new URL(webpage.substring(start_1 + COVER_BOOKS_START_TAG.length(), end_1));
 					mCover = BitmapCache.getInstance(bUseSystemProxy).load(url);
+					if (mCover != null) {
+						return true;
+					}
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
 			}
+			
+			return false;
     	}
     	
-    	private void retrieveTitlePriceFromBooks(String isbn) {
+    	private boolean retrieveTitlePriceFromBooks(String isbn) {
 			String url_store = String.format(URL_BOOKS, isbn); 
 			String webpage = retriveWebPage(url_store, "Big5");
 			if (webpage == null) {
-    			return;
+    			return false;
     		}
     		
     		if (webpage.length() == 0) {
-    			return;
+    			return false;
     		}
 
     		int start_2 = webpage.indexOf(BOOKS_URL_START_TAG);
 			if (start_2 == -1) {
-				return;
+				return false;
 			}
     		int start_3 = webpage.indexOf(TITLE_BOOKS_START_TAG, start_2);
     		int end_3 = webpage.indexOf(TITLE_BOOKS_END_TAG, start_3);
@@ -307,6 +319,12 @@ public class ShowBookInfo extends Activity {
     		if (start_4 != -1 && end_4 != -1) {
     			mPrice = webpage.substring(start_4 + PRICE_BOOKS_START_TAG.length(), end_4);
     		}
+    		
+    		if (mTitle != null && mPrice != null) {
+    			return true;
+    		}
+    		
+    		return false;
     	}
     	        
 		@Override
@@ -315,6 +333,7 @@ public class ShowBookInfo extends Activity {
 			if (retrieveCoverFromFindbook(isbn) == false) {
 				retrieveCoverFromBooks(isbn);
 			}
+			
 			if (retrieveTitlePriceFromFindbook(isbn) == false) {
 				retrieveTitlePriceFromBooks(isbn);
 			}
@@ -422,25 +441,6 @@ public class ShowBookInfo extends Activity {
             return responseBody;
         }
          
-        private String parseRealURLFromSanmin(String webpage) {
-    		if (webpage == null) {
-    			return null;
-    		}
-    		
-    		if (webpage.length() == 0) {
-    			return null;
-    		}
-
-    		String real_url = null;
-    		int start = webpage.indexOf("QueryBookNmSort('");
-    		int end = webpage.indexOf("');", start);
-    		if (start != -1 && end != -1) {
-    			real_url = String.format(URL_SANMIN_BOOK, webpage.substring(start + 17, end));
-    		}
-    		
-    		return real_url;
-    	}
-
         private static final String FINDBOOK_TITLE_START_TAG = "<span style=\"text-decoration:underline\">";
         private static final String FINDBOOK_TITLE_END_TAG = "</span>";
         
@@ -466,6 +466,25 @@ public class ShowBookInfo extends Activity {
     		return true;
         }
          
+        private String parseRealURLFromSanmin(String webpage) {
+    		if (webpage == null) {
+    			return null;
+    		}
+    		
+    		if (webpage.length() == 0) {
+    			return null;
+    		}
+
+    		String real_url = null;
+    		int start = webpage.indexOf("QueryBookNmSort('");
+    		int end = webpage.indexOf("');", start);
+    		if (start != -1 && end != -1) {
+    			real_url = String.format(URL_SANMIN_BOOK, webpage.substring(start + 17, end));
+    		}
+    		
+    		return real_url;
+    	}
+
         private static final String SANMIN_URL_START_TAG = "page-product.asp?pid=";
         private static final String SANMIN_URL_END_TAG = "\">";
         private static final String SANMIN_TITLE_END_TAG = "</a>";
@@ -892,7 +911,6 @@ public class ShowBookInfo extends Activity {
         
         Intent intent = getIntent();
         if (intent != null) {
-        	
         	Bundle bundle = intent.getExtras();
         	if (bundle != null) {
             	mISBN = bundle.getString("ISBN");
@@ -934,13 +952,14 @@ public class ShowBookInfo extends Activity {
 					return;
 				}
 				
-    			if (book.url != null) {
-    				Intent i = new Intent(Intent.ACTION_VIEW);
-    				i.setData(Uri.parse(book.url));
-    				startActivity(i);
-    			} else {
-    				FindbookByISBN(isbn, book.bookstore);
-    			}
+				String url = book.url;
+				if (url == null) {
+					url = getBookURLbyISBN(isbn, book.bookstore);
+				}
+
+    			Intent i = new Intent(Intent.ACTION_VIEW);
+    			i.setData(Uri.parse(url));
+    			startActivity(i);
 			}
         });        
 
@@ -949,15 +968,15 @@ public class ShowBookInfo extends Activity {
         }
 	}
 
-    private void FindbookByISBN(String isbn, int nBookstore) {
+    private String getBookURLbyISBN(String isbn, int nBookstore) {
     	if (isbn == null) {
-    		return;
+    		return null;
     	}
     	
     	if (isbn.length() == 0) {
-    		return;
+    		return null;
     	}
-    	Log.d(TAG, "isbn:" + isbn);
+
 		String url_store = null;
 
 		switch (nBookstore) {
@@ -976,9 +995,7 @@ public class ShowBookInfo extends Activity {
 			break;
 		}
 
-		Intent i = new Intent(Intent.ACTION_VIEW);
-		i.setData(Uri.parse(url_store));
-		startActivity(i);
+		return url_store;
     }
     
     public class BooksAdapter extends BaseAdapter {
