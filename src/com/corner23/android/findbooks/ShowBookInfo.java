@@ -81,6 +81,9 @@ public class ShowBookInfo extends Activity {
 	
 	private boolean bUseSystemProxy = true;
 	
+	private HttpClient httpclient = null;
+	private HttpGet httpget = null;
+	
 	private FetchWebPageTask mFetchWebPageTask = null;
 	private FetchBookInfoTask mFetchBookInfoTask = null;
 	
@@ -162,11 +165,20 @@ public class ShowBookInfo extends Activity {
         return sb.toString();
 	}
 	
+	private void initHttpClient() {
+		if (httpclient == null) {
+			httpclient = new DefaultHttpClient();
+			httpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, TIMEOUT);
+			httpclient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, TIMEOUT);    		
+		}
+	}
+	
+	private void shutdownHttpClient() {
+		httpclient.getConnectionManager().shutdown();
+	}
+
 	private class FetchBookInfoTask extends AsyncTask<String, Void, Boolean> {
 
-    	private HttpClient httpclient = null;
-    	private HttpGet httpget = null;
-             
         private String retriveWebPage(String url, String encoding) {
     		if (url == null) {
     			return null;
@@ -342,15 +354,11 @@ public class ShowBookInfo extends Activity {
 		}
 		
 		protected void onPreExecute() {
-    		httpclient = new DefaultHttpClient();
-    		httpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, TIMEOUT);
-    		httpclient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, TIMEOUT);    		
 		}
 		
     	protected void onPostExecute(Boolean bSuccess) {
 			dismissProgressBar();
 			mFetchBookInfoTask = null;
-			httpclient.getConnectionManager().shutdown();
 			if (mCoverImageView != null && mCover != null) {
 				mCoverImageView.setImageBitmap(mCover);
 			}
@@ -372,7 +380,6 @@ public class ShowBookInfo extends Activity {
 			if (httpget != null) {
 				httpget.abort();
 			}
-			httpclient.getConnectionManager().shutdown();
 		}
 	}
 	
@@ -404,8 +411,6 @@ public class ShowBookInfo extends Activity {
     	private String isbn = null;
     	private String price = null;
     	private int nBookstore;
-    	private HttpClient httpclient = null;
-    	private HttpGet httpget = null;
     	private boolean bHttpConnectSuccess = false;
              
         private String retriveWebPage(String url, String encoding) {
@@ -741,13 +746,9 @@ public class ShowBookInfo extends Activity {
 		}
 		
     	protected void onPreExecute() {
-    		httpclient = new DefaultHttpClient();
-    		httpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, TIMEOUT);
-    		httpclient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, TIMEOUT);
     	}
 
     	protected void onPostExecute(Boolean isSuccess) {
-            httpclient.getConnectionManager().shutdown();        
             mFetchWebPageTask = null;
 			if (isSuccess != true) {
 				if (bHttpConnectSuccess) {
@@ -773,7 +774,6 @@ public class ShowBookInfo extends Activity {
 			if (httpget != null) {
 				httpget.abort();
 			}
-			httpclient.getConnectionManager().shutdown();
 		}
     }
     
@@ -813,6 +813,7 @@ public class ShowBookInfo extends Activity {
 			mFetchBookInfoTask.cancel(true);
 			mFetchBookInfoTask = null;
 		}
+		shutdownHttpClient();
 		dismissProgressBar();
 		super.onPause();
 	}
@@ -820,6 +821,9 @@ public class ShowBookInfo extends Activity {
 	@Override
 	protected void onResume() {
 		Log.d(TAG, "onResume:");
+		
+		initHttpClient();
+		
 		if (mResumeFetchBookInfoTask) {
 			goFetchBookInfoTask(mISBN);
 		} else if (mResumeFetchWebPageTask) {
