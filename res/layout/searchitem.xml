@@ -10,7 +10,9 @@
 		android:layout_width="0dip"
 		android:layout_height="wrap_content"
 		android:layout_weight="5"
+        android:layout_gravity="center_vertical"
 		android:orientation="vertical" >
+		<!-- 
 	    <TextView
 	        android:id="@+id/text_isbn"
 	        android:layout_width="fill_parent"
@@ -19,11 +21,12 @@
 	        android:ellipsize="marquee"
 	        android:textAppearance="?android:attr/textAppearanceLarge"
 	    />
+	     -->
 	    <TextView
 	        android:id="@+id/text_store"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:textAppearance="?android:attr/textAppearanceSmall"
+	        android:textAppearance="?android:attr/textAppearanceLarge"
 	    />
 	</LinearLayout>
     <TextView
@@ -31,8 +34,8 @@
         android:layout_width="0dip"
         android:layout_height="wrap_content"
 		android:layout_weight="2"
-		android:gravity="center"
         android:textStyle="bold"
+        android:layout_gravity="center_vertical"
         android:textAppearance="?android:attr/textAppearanceLarge"
     />
 </LinearLayout>

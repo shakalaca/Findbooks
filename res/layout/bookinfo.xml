@@ -2,15 +2,38 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
-	<TextView
-		android:id="@+id/text_recent" 
+	<RelativeLayout
+		android:id="@+id/info_container"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content" >
+    <ImageView
+		android:id="@+id/image_cover" 
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" 
-		android:layout_centerHorizontal="true"
-		android:text="@string/text_recent_text" />
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentTop="true"
+	/>
+	<TextView
+		android:id="@+id/text_title" 
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" 
+		android:layout_toRightOf="@id/image_cover"
+		android:layout_alignParentTop="true"
+	    android:textAppearance="?android:attr/textAppearanceLarge"
+	/>
+	<TextView
+		android:id="@+id/text_price" 
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" 
+		android:layout_toRightOf="@id/image_cover"
+        android:layout_below="@id/text_title"
+	    android:textAppearance="?android:attr/textAppearanceMedium"
+	/>
+	</RelativeLayout>
     <ListView 
     	android:id="@+id/list_isbn"
         android:layout_width="fill_parent" 
         android:layout_height="wrap_content"
-        android:layout_below="@id/text_recent" />
+        android:layout_below="@id/info_container"
+    />
 </RelativeLayout>

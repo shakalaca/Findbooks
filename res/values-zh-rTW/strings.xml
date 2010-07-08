@@ -10,7 +10,8 @@
 	<string name="text_recent_text">最近查詢:</string>
 
 	<string name="text_price_text">%s 元</string>
-	<string name="loading_text">載入中..</string>
+	<string name="loading_price_info_text">讀取價格資訊中..</string>
+	<string name="loading_book_info_text">讀取書籍資訊中..</string>
 	
 	<string name="error_text">錯誤</string>
 	<string name="not_found_text">網站中無此書資料</string>

@@ -10,7 +10,8 @@
 	<string name="text_recent_text">Recent searches:</string>
 	
 	<string name="text_price_text">NT $%s</string>
-	<string name="loading_text">Loading..</string>
+	<string name="loading_price_info_text">Loading price info..</string>
+	<string name="loading_book_info_text">Loading book info..</string>
 
 	<string name="error_text">Error</string>
 	<string name="not_found_text">Book not found in this web</string>
