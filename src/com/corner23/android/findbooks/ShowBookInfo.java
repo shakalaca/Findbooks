@@ -180,6 +180,7 @@ public class ShowBookInfo extends Activity {
 	
 	private void shutdownHttpClient() {
 		httpclient.getConnectionManager().shutdown();
+		httpclient = null;
 	}
 
 	private class FetchBookInfoTask extends AsyncTask<String, Void, Boolean> {
@@ -194,10 +195,8 @@ public class ShowBookInfo extends Activity {
     			return null;
     		}
     		
+    		initHttpClient();
     		httpget = new HttpGet(url); 
-        	if (httpget == null) {
-        		return null;
-        	}
             String responseBody = null;
 
             try {
@@ -427,6 +426,7 @@ public class ShowBookInfo extends Activity {
     			return null;
     		}
     		
+        	initHttpClient();
     		httpget = new HttpGet(url); 
             String responseBody = null;
 
