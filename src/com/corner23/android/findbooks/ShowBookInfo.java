@@ -59,9 +59,11 @@ public class ShowBookInfo extends Activity {
 	private static final String URL_BOOKS = "http://search.books.com.tw/exep/prod_search.php?key=%s";
 	private static final String URL_SANMIN = "http://www.sanmin.com.tw/page-qsearch.asp?qu=%s";
 	private static final String URL_KINGSTONE = "http://search.kingstone.com.tw/SearchResult.asp?c_name=%s";
-	private static final String URL_TENLONG = "http://tlsj.tenlong.com.tw/WebModule/BookSearch/bookSearchAction.do?fkeyword=%s";
+	private static final String URL_TENLONG = "http://www.tenlong.com.tw/search?keyword=%s";
+		// "http://tlsj.tenlong.com.tw/WebModule/BookSearch/bookSearchAction.do?fkeyword=%s";
 		// "http://tlsj.tenlong.com.tw/WebModule/BookSearch/bookSearchAdvancedAction.do?bookname=&submit=Submit&author=&isbn=%s&publisher_id=&chinese=&pub_date=&fpub_date_year=&book_order=";
 	
+	private static final String URL_TENLONG_BOOK = "http://www.tenlong.com.tw/items/%s";
 	private static final String URL_BOOKS_BOOK = "http://www.books.com.tw/exep/prod/booksfile.php?item=%s";
 	private static final String URL_SANMIN_BOOK = "http://www.sanmin.com.tw/QueryBookNmSort.asp?%s";
 	
@@ -193,6 +195,9 @@ public class ShowBookInfo extends Activity {
     		}
     		
     		httpget = new HttpGet(url); 
+        	if (httpget == null) {
+        		return null;
+        	}
             String responseBody = null;
 
             try {
@@ -536,6 +541,48 @@ public class ShowBookInfo extends Activity {
     		return false;
     	}
 
+        private static final String TENLONG_URL_START_TAG = "items-table";
+        private static final String TENLONG_URL_START_TAG_2 = "title=\"";
+        private static final String TENLONG_URL_END_TAG = "\">";
+        private static final String TENLONG_PRICE_START_TAG = "<span class=\"pricing\">";
+        private static final String TENLONG_PRICE_START_TAG_2 = "$";
+        private static final String TENLONG_PRICE_END_TAG = "</span>";
+        
+    	private boolean parseInfoFromTenlong(String webpage) {
+    		if (webpage == null) {
+    			return false;
+    		}
+    		
+    		if (webpage.length() == 0) {
+    			return false;
+    		}
+
+    		url = String.format(URL_TENLONG_BOOK, isbn);
+    		
+    		int start_1 = webpage.indexOf(TENLONG_URL_START_TAG);
+    		int start_2 = webpage.indexOf(TENLONG_URL_START_TAG_2, start_1);
+    		start_2 = webpage.indexOf(TENLONG_URL_START_TAG_2, start_2 + 1);
+    		int end_2 = webpage.indexOf(TENLONG_URL_END_TAG, start_2);
+    		if (start_2 != -1 && end_2 != -1) {
+    			title = webpage.substring(start_2 + TENLONG_URL_START_TAG_2.length(), end_2);
+    		}
+    		
+    		int start_3 = webpage.indexOf(TENLONG_PRICE_START_TAG);
+    		int start_4 = webpage.indexOf(TENLONG_PRICE_START_TAG_2, start_3);
+    		start_4 = webpage.indexOf(TENLONG_PRICE_START_TAG_2, start_4 + 1);
+    		int end_4 = webpage.indexOf(TENLONG_PRICE_END_TAG, start_4);
+    		if (start_4 != -1 && end_4 != -1) {
+    			price = webpage.substring(start_4 + TENLONG_PRICE_START_TAG_2.length(), end_4);
+    		}
+    		
+    		if (title != null && url != null) {
+    			Log.d(TAG, "Title:" + title + ", url:" + url);
+    			return true;
+    		}
+    		
+    		return false;
+    	}
+    	    	
         private static final String ESLITE_URL_START_TAG = "tn15";
         private static final String ESLITE_URL_START_TAG_2 = "<a href=\"http://";
         private static final String ESLITE_URL_END_TAG = "\">";
@@ -563,7 +610,11 @@ public class ShowBookInfo extends Activity {
     		int end_3 = webpage.indexOf(ESLITE_TITLE_END_TAG, start_3);
     		if (start_3 != -1 && end_3 != -1) {
     			title = webpage.substring(start_3, end_3).trim();
-    			title = title.substring(0, title.length() - 1);
+    			if (title.length() == 0) {
+    				return false;
+    			} else {
+    				title = title.substring(0, title.length() - 1);
+    			}
     		}
     		
     		int start_4 = webpage.indexOf(ESLITE_PRICE_START_TAG, end_3);
@@ -714,7 +765,7 @@ public class ShowBookInfo extends Activity {
 			case BOOKSTORE_BOOKS:		
 				Log.d(TAG, "Books: ");
 				url_store = String.format(URL_BOOKS, isbn); 
-				webpage = retriveWebPage(url_store, "Big5");
+				webpage = retriveWebPage(url_store, "UTF-8");
 				bProcess = parseInfoFromBooks(webpage);
 				break;
 				
@@ -746,12 +797,9 @@ public class ShowBookInfo extends Activity {
 				
 			case BOOKSTORE_TENLONG:		
 				Log.d(TAG, "Tenlong: ");
-				if (isbn.length() > 9) {
-					url_store = String.format(URL_TENLONG, isbn.substring(3, isbn.length() - 1));
-				} else {
-					url_store = String.format(URL_TENLONG, isbn);
-				}
+				url_store = String.format(URL_TENLONG, isbn);
 				webpage = retriveWebPage(url_store, "UTF-8");			
+				bProcess = parseInfoFromTenlong(webpage);
 				break;
 			}
 			
@@ -1033,13 +1081,7 @@ public class ShowBookInfo extends Activity {
 		case BOOKSTORE_ESLITE:		url_store = String.format(URL_ESLITE, isbn); break;
 		case BOOKSTORE_SANMIN:		url_store = String.format(URL_SANMIN, isbn); break;
 		case BOOKSTORE_KINGSTONE:	url_store = String.format(URL_KINGSTONE, isbn); break;
-		case BOOKSTORE_TENLONG:		
-			if (isbn.length() > 9) {
-				url_store = String.format(URL_TENLONG, isbn.substring(3, isbn.length() - 1));
-			} else {
-				url_store = String.format(URL_TENLONG, isbn);
-			}
-			break;
+		case BOOKSTORE_TENLONG:		url_store = String.format(URL_TENLONG, isbn); break;
 		}
 
 		return url_store;
