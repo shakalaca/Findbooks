@@ -58,7 +58,7 @@ public class ShowBookInfo extends Activity {
 	private static final String URL_ESLITE = "http://www.eslite.com/Search_BW.aspx?query=%s";
 	private static final String URL_BOOKS = "http://search.books.com.tw/exep/prod_search.php?key=%s";
 	private static final String URL_SANMIN = "http://www.sanmin.com.tw/page-qsearch.asp?qu=%s";
-	private static final String URL_KINGSTONE = "http://search.kingstone.com.tw/SearchResult.asp?c_name=%s";
+	private static final String URL_KINGSTONE = "http://search.kingstone.com.tw/SearchResult.asp?c_name=%s&SE_Type=%%A5%%FE%%C0%%5D%%B7j%%B4M";
 	private static final String URL_TENLONG = "http://www.tenlong.com.tw/search?keyword=%s";
 		// "http://tlsj.tenlong.com.tw/WebModule/BookSearch/bookSearchAction.do?fkeyword=%s";
 		// "http://tlsj.tenlong.com.tw/WebModule/BookSearch/bookSearchAdvancedAction.do?bookname=&submit=Submit&author=&isbn=%s&publisher_id=&chinese=&pub_date=&fpub_date_year=&book_order=";
