@@ -55,7 +55,7 @@ public class ShowBookInfo extends Activity {
 	private static final int BOOKSTORE_END = BOOKSTORE_TENLONG + 1;
 	
 	private static final String URL_FINDBOOK = "http://findbook.tw/m/book/%s/price";
-	private static final String URL_ESLITE = "http://www.eslite.com/search_pro.aspx?query=%s";
+	private static final String URL_ESLITE = "http://www.eslite.com/Search_BW.aspx?query=%s";
 	private static final String URL_BOOKS = "http://search.books.com.tw/exep/prod_search.php?key=%s";
 	private static final String URL_SANMIN = "http://www.sanmin.com.tw/page-qsearch.asp?qu=%s";
 	private static final String URL_KINGSTONE = "http://search.kingstone.com.tw/SearchResult.asp?c_name=%s";
@@ -583,11 +583,13 @@ public class ShowBookInfo extends Activity {
     		return false;
     	}
     	    	
-        private static final String ESLITE_URL_START_TAG = "tn15";
-        private static final String ESLITE_URL_START_TAG_2 = "<a href=\"http://";
+        private static final String ESLITE_URL_START_TAG = "ctl00_ContentPlaceHolder1_rptProducts_ctl00_imgBookCover";
+        private static final String ESLITE_URL_START_TAG_2 = "http://www.eslite.com/product.aspx?pgid=";
         private static final String ESLITE_URL_END_TAG = "\">";
-        private static final String ESLITE_TITLE_END_TAG = "</a>";
-        private static final String ESLITE_PRICE_START_TAG = "NT$<span class=\"price_sale\">";
+        private static final String ESLITE_TITLE_START_TAG = "ctl00_ContentPlaceHolder1_rptProducts_ctl00_LblName\">";
+        private static final String ESLITE_TITLE_END_TAG = "</span>";
+        private static final String ESLITE_PRICE_START_TAG = "NT$<span";
+        private static final String ESLITE_PRICE_START_TAG_2 = "class=\"price_sale\">";
         private static final String ESLITE_PRICE_END_TAG = "元</span>";
         
     	private boolean parseInfoFromEslite(String webpage) {
@@ -603,24 +605,20 @@ public class ShowBookInfo extends Activity {
     		int start_2 = webpage.indexOf(ESLITE_URL_START_TAG_2, start_1);
     		int end_2 = webpage.indexOf(ESLITE_URL_END_TAG, start_2);
     		if (start_2 != -1 && end_2 != -1) {
-    			url = webpage.substring(start_2 + 9, end_2); // 9 is length of "<a href=\""
+    			url = webpage.substring(start_2, end_2);
     		}
     		
-    		int start_3 = (end_2 == -1 ? -1 : (end_2 + ESLITE_URL_END_TAG.length()));
+    		int start_3 = webpage.indexOf(ESLITE_TITLE_START_TAG, end_2);
     		int end_3 = webpage.indexOf(ESLITE_TITLE_END_TAG, start_3);
     		if (start_3 != -1 && end_3 != -1) {
-    			title = webpage.substring(start_3, end_3).trim();
-    			if (title.length() == 0) {
-    				return false;
-    			} else {
-    				title = title.substring(0, title.length() - 1);
-    			}
+    			title = webpage.substring(start_3 + ESLITE_TITLE_START_TAG.length(), end_3);
     		}
     		
-    		int start_4 = webpage.indexOf(ESLITE_PRICE_START_TAG, end_3);
-    		int end_4 = webpage.indexOf(ESLITE_PRICE_END_TAG, start_4);
-    		if (start_4 != -1 && end_4 != -1) {
-    			price = webpage.substring(start_4 + ESLITE_PRICE_START_TAG.length(), end_4);
+    		int start_4_1 = webpage.indexOf(ESLITE_PRICE_START_TAG, end_3);
+    		int start_4_2 = webpage.indexOf(ESLITE_PRICE_START_TAG_2, start_4_1);
+    		int end_4 = webpage.indexOf(ESLITE_PRICE_END_TAG, start_4_2);
+    		if (start_4_2 != -1 && end_4 != -1) {
+    			price = webpage.substring(start_4_2 + ESLITE_PRICE_START_TAG_2.length(), end_4);
     		}
     		
     		if (title != null && url != null) {
