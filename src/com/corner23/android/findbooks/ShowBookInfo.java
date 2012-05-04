@@ -58,7 +58,8 @@ public class ShowBookInfo extends Activity {
 	private static final String URL_ESLITE = "http://www.eslite.com/Search_BW.aspx?query=%s";
 	private static final String URL_BOOKS = "http://search.books.com.tw/exep/prod_search.php?key=%s";
 	private static final String URL_SANMIN = "http://www.sanmin.com.tw/page-qsearch.asp?qu=%s";
-	private static final String URL_KINGSTONE = "http://search.kingstone.com.tw/SearchResult.asp?c_name=%s&SE_Type=%%A5%%FE%%C0%%5D%%B7j%%B4M";
+	private static final String URL_KINGSTONE = "http://www.kingstone.com.tw/search/result.asp?c_name=%s";
+		// "http://search.kingstone.com.tw/SearchResult.asp?c_name=%s&SE_Type=%%A5%%FE%%C0%%5D%%B7j%%B4M";
 	private static final String URL_TENLONG = "http://www.tenlong.com.tw/search?keyword=%s";
 		// "http://tlsj.tenlong.com.tw/WebModule/BookSearch/bookSearchAction.do?fkeyword=%s";
 		// "http://tlsj.tenlong.com.tw/WebModule/BookSearch/bookSearchAdvancedAction.do?bookname=&submit=Submit&author=&isbn=%s&publisher_id=&chinese=&pub_date=&fpub_date_year=&book_order=";
@@ -629,12 +630,13 @@ public class ShowBookInfo extends Activity {
     		return false;
     	}
     	
-        private static final String KINGSTONE_URL_START_TAG = "bc-info";
-        private static final String KINGSTONE_URL_START_TAG_2 = "<h1><a href=\"";
+        private static final String KINGSTONE_TITLE_URL_START_TAG = "<a class=\"anchor";
+        private static final String KINGSTONE_TITLE_START_TAG = "title=\"";
+        private static final String KINGSTONE_TITLE_END_TAG = "\"";
+        private static final String KINGSTONE_URL_START_TAG_2 = "href=\"";
         private static final String KINGSTONE_URL_END_TAG = "\">";
-        private static final String KINGSTONE_TITLE_END_TAG = "</a>";
-        private static final String KINGSTONE_PRICE_START_TAG = "<span class=\"price\">";
-        private static final String KINGSTONE_PRICE_END_TAG = "</span>";
+        private static final String KINGSTONE_PRICE_START_TAG = "<span class=\"sale_price\"><em>";
+        private static final String KINGSTONE_PRICE_END_TAG = "</em>";
         
     	private boolean parseInfoFromKingstone(String webpage) {
     		if (webpage == null) {
@@ -645,20 +647,20 @@ public class ShowBookInfo extends Activity {
     			return false;
     		}
 
-    		int start_1 = webpage.indexOf(KINGSTONE_URL_START_TAG);
-    		int start_2 = webpage.indexOf(KINGSTONE_URL_START_TAG_2, start_1);
+    		int start = webpage.indexOf(KINGSTONE_TITLE_URL_START_TAG);
+    		int start_1 = webpage.indexOf(KINGSTONE_TITLE_START_TAG, start);
+    		int end_1 = webpage.indexOf(KINGSTONE_TITLE_END_TAG, start_1 + KINGSTONE_TITLE_START_TAG.length());
+    		if (start_1 != -1 && end_1 != -1) {
+    			title = decode(webpage.substring(start_1, end_1), ' ');
+    		}
+    		
+    		int start_2 = webpage.indexOf(KINGSTONE_URL_START_TAG_2, end_1);
     		int end_2 = webpage.indexOf(KINGSTONE_URL_END_TAG, start_2);
     		if (start_2 != -1 && end_2 != -1) {
     			url = webpage.substring(start_2 + KINGSTONE_URL_START_TAG_2.length(), end_2);
     		}
     		
-    		int start_3 = (end_2 == -1 ? -1 : (end_2 + KINGSTONE_URL_END_TAG.length()));
-    		int end_3 = webpage.indexOf(KINGSTONE_TITLE_END_TAG, start_3);
-    		if (start_3 != -1 && end_3 != -1) {
-    			title = decode(webpage.substring(start_3, end_3), ' ');
-    		}
-    		
-    		int start_4 = webpage.indexOf(KINGSTONE_PRICE_START_TAG, end_3);
+    		int start_4 = webpage.indexOf(KINGSTONE_PRICE_START_TAG, end_2);
     		int end_4 = webpage.indexOf(KINGSTONE_PRICE_END_TAG, start_4);
     		if (start_4 != -1 && end_4 != -1) {
     			price = webpage.substring(start_4 + KINGSTONE_PRICE_START_TAG.length(), end_4);
