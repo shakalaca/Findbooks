@@ -1,8 +1,18 @@
 package com.corner23.android.findbooks;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import com.corner23.android.findbooks.barcode.BarCodeIntegrator;
+import com.corner23.android.findbooks.barcode.BarCodeIntentResult;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.Editable;
 // import android.text.TextWatcher;
 import android.util.Log;

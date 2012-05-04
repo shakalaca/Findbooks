@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.corner23.android.findbooks;
+package com.corner23.android.findbooks.barcode;
 
 /**
  * <p>Encapsulates the result of a barcode scan invoked through {@link IntentIntegrator}.</p>

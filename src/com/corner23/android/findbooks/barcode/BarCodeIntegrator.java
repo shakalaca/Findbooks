@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.corner23.android.findbooks;
+package com.corner23.android.findbooks.barcode;
 
 import android.app.AlertDialog;
 import android.app.Activity;
