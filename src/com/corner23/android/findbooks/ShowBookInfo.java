@@ -487,10 +487,10 @@ public class ShowBookInfo extends Activity {
     		}
 
     		String real_url = null;
-    		int start = webpage.indexOf("QueryBookNmSort('");
-    		int end = webpage.indexOf("');", start);
+    		int start = webpage.indexOf("qStr='");
+    		int end = webpage.indexOf("'", start + 7);
     		if (start != -1 && end != -1) {
-    			real_url = String.format(URL_SANMIN_BOOK, webpage.substring(start + 17, end));
+    			real_url = String.format(URL_SANMIN_BOOK, webpage.substring(start + 6, end));
     		}
     		
     		return real_url;
