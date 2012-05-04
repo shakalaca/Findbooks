@@ -41,6 +41,13 @@
 			android:title="@string/pref_store_tenlong_title_text"
 			android:summary="@string/pref_store_tenlong_summary_text"
 			android:defaultValue="true" />
+
+		<CheckBoxPreference 
+			android:key="pref_enable_pchome"
+			android:title="@string/pref_store_pchome_title_text"
+			android:summary="@string/pref_store_pchome_summary_text"
+			android:defaultValue="true" />
+						
 	</PreferenceScreen>
 
 </PreferenceScreen>

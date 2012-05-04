@@ -36,4 +36,6 @@
 	<string name="pref_store_kingstone_summary_text">www.kingstone.com.tw</string>
 	<string name="pref_store_tenlong_title_text">Tenlong</string>
 	<string name="pref_store_tenlong_summary_text">www.tenlong.com.tw</string>
+	<string name="pref_store_pchome_title_text">PCHome</string>
+	<string name="pref_store_pchome_summary_text">shopping.pchome.com.tw</string>
 </resources>

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
 import org.apache.http.HttpEntity;
@@ -12,10 +13,18 @@ import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.apache.http.NameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -52,7 +61,8 @@ public class ShowBookInfo extends Activity {
 	private static final int BOOKSTORE_SANMIN = 4;
 	private static final int BOOKSTORE_KINGSTONE = 5;
 	private static final int BOOKSTORE_TENLONG = 6;
-	private static final int BOOKSTORE_END = BOOKSTORE_TENLONG + 1;
+	private static final int BOOKSTORE_PCHOME = 7;
+	private static final int BOOKSTORE_END = BOOKSTORE_PCHOME + 1;
 	
 	private static final String URL_FINDBOOK = "http://findbook.tw/m/book/%s/price";
 	private static final String URL_ESLITE = "http://www.eslite.com/Search_BW.aspx?query=%s";
@@ -63,7 +73,9 @@ public class ShowBookInfo extends Activity {
 	private static final String URL_TENLONG = "http://www.tenlong.com.tw/search?keyword=%s";
 		// "http://tlsj.tenlong.com.tw/WebModule/BookSearch/bookSearchAction.do?fkeyword=%s";
 		// "http://tlsj.tenlong.com.tw/WebModule/BookSearch/bookSearchAdvancedAction.do?bookname=&submit=Submit&author=&isbn=%s&publisher_id=&chinese=&pub_date=&fpub_date_year=&book_order=";
+	private static final String URL_PCHOME = "http://ecshweb.pchome.com.tw/search/v1/?f=getItems";
 	
+	private static final String URL_PCHOME_BOOK = "http://shopping.pchome.com.tw/%s";
 	private static final String URL_TENLONG_BOOK = "http://www.tenlong.com.tw/items/%s";
 	private static final String URL_BOOKS_BOOK = "http://www.books.com.tw/exep/prod/booksfile.php?item=%s";
 	private static final String URL_SANMIN_BOOK = "http://www.sanmin.com.tw/QueryBookNmSort.asp?%s";
@@ -89,6 +101,7 @@ public class ShowBookInfo extends Activity {
 	
 	private HttpClient httpclient = null;
 	private HttpGet httpget = null;
+	private HttpPost httppost = null;
 	
 	private FetchWebPageTask mFetchWebPageTask = null;
 	private FetchBookInfoTask mFetchBookInfoTask = null;
@@ -218,7 +231,7 @@ public class ShowBookInfo extends Activity {
     		}
             return responseBody;
         }
-
+        
         private static final String TITLE_FINDBOOK_START_TAG = "<span style=\"text-decoration:underline\">";
         private static final String TITLE_FINDBOOK_END_TAG = "</span>";
         private static final String PRICE_FINDBOOK_START_TAG = "定價:";
@@ -452,6 +465,43 @@ public class ShowBookInfo extends Activity {
             return responseBody;
         }
          
+
+        private String retriveJsondata(String url, List<NameValuePair> data) {
+    		if (url == null) {
+    			return null;
+    		}
+    		
+    		if (url.length() == 0) {
+    			return null;
+    		}
+    		
+    		initHttpClient();
+    		httppost = new HttpPost(url); 
+            String responseData = null;
+
+            try {
+        		if (data != null) {
+        			httppost.setEntity(new UrlEncodedFormEntity(data, HTTP.UTF_8));
+        		}
+        		
+            	HttpResponse response = httpclient.execute(httppost);
+            	StatusLine statusLine = response.getStatusLine();
+    			int statusCode = statusLine.getStatusCode();
+    			if (statusCode == HttpStatus.SC_OK) {
+    	        	HttpEntity entity = response.getEntity();
+    	        	if (entity != null) {
+    	        		responseData = EntityUtils.toString(entity, "UTF-8");
+    					entity.consumeContent();
+    	        	}
+    			}
+    		} catch (ClientProtocolException e) {
+    			e.printStackTrace();
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+            return responseData;
+        }
+        
         private static final String FINDBOOK_TITLE_START_TAG = "<span style=\"text-decoration:underline\">";
         private static final String FINDBOOK_TITLE_END_TAG = "</span>";
         
@@ -476,7 +526,49 @@ public class ShowBookInfo extends Activity {
     		
     		return true;
         }
-         
+
+    	private boolean parseInfoFromPchome(String webpage) {
+    		if (webpage == null) {
+    			return false;
+    		}
+    		
+    		if (webpage.length() == 0) {
+    			return false;
+    		}
+    		
+    		try {
+				JSONObject jo = new JSONObject(webpage);
+				JSONArray ja = jo.getJSONArray("Items");
+				if (ja == null) {
+					return false;
+				}
+				
+				if (ja.length() <= 0) {
+					return false;
+				}
+				
+				jo = ja.getJSONObject(0);
+				if (jo == null) {
+					return false;
+				}
+				
+				title = jo.getString("Title");
+				
+				String id = jo.getString("Id");
+				if (id != null) {
+					url = String.format(URL_PCHOME_BOOK, id);
+				}
+				
+				price = jo.getString("Price");
+				
+				return true;
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+    		
+    		return false;
+    	}
+    	    	        
         private String parseRealURLFromSanmin(String webpage) {
     		if (webpage == null) {
     			return null;
@@ -801,8 +893,24 @@ public class ShowBookInfo extends Activity {
 				webpage = retriveWebPage(url_store, "UTF-8");			
 				bProcess = parseInfoFromTenlong(webpage);
 				break;
-			}
 			
+			case BOOKSTORE_PCHOME:		
+				Log.d(TAG, "Pchome: ");
+				url_store = URL_PCHOME;
+				
+	    		List<NameValuePair> data = new ArrayList<NameValuePair>();
+	    		data.add(new BasicNameValuePair("Keyword", "/" + isbn));
+	    		data.add(new BasicNameValuePair("CurPage", "1"));
+	    		data.add(new BasicNameValuePair("SortParm", "RNK"));
+	    		data.add(new BasicNameValuePair("SortOrder", "DC"));
+	    		data.add(new BasicNameValuePair("Scope", "all"));
+	    		data.add(new BasicNameValuePair("Count", "2"));
+	    		
+	    		webpage = retriveJsondata(url_store, data);
+				bProcess = parseInfoFromPchome(webpage);
+				break;
+			}
+
 			return bProcess;
 		}
 		
@@ -831,6 +939,9 @@ public class ShowBookInfo extends Activity {
 			mFetchWebPageTask = null;
 			if (httpget != null) {
 				httpget.abort();
+			}
+			if (httppost != null) {
+				httppost.abort();
 			}
 		}
     }
@@ -1047,6 +1158,9 @@ public class ShowBookInfo extends Activity {
         if (settings.getBoolean("pref_enable_tenlong", true)) {
         	mStores |= 1 << BOOKSTORE_TENLONG - BOOKSTORE_START;
         }
+        if (settings.getBoolean("pref_enable_pchome", true)) {
+        	mStores |= 1 << BOOKSTORE_PCHOME - BOOKSTORE_START;
+        }
 
 		LinearLayout info_container = (LinearLayout) findViewById (R.id.info_container);
 		info_container.setVisibility(bFetchBookInfo ? View.VISIBLE : View.GONE);
@@ -1082,6 +1196,7 @@ public class ShowBookInfo extends Activity {
 		case BOOKSTORE_SANMIN:		url_store = String.format(URL_SANMIN, isbn); break;
 		case BOOKSTORE_KINGSTONE:	url_store = String.format(URL_KINGSTONE, isbn); break;
 		case BOOKSTORE_TENLONG:		url_store = String.format(URL_TENLONG, isbn); break;
+		case BOOKSTORE_PCHOME:		url_store = String.format(URL_PCHOME, isbn); break;
 		}
 
 		return url_store;
