@@ -25,9 +25,15 @@
 
 	<string name="pref_chosen_bookstore_text">選擇網路書店</string>
 	<string name="pref_store_findbook_title_text">翻書客</string>
+	<string name="pref_store_findbook_summary_text">findbook.tw</string>
 	<string name="pref_store_eslite_title_text">誠品</string>
+	<string name="pref_store_eslite_summary_text">www.eslite.com</string>
 	<string name="pref_store_books_title_text">博客來</string>
+	<string name="pref_store_books_summary_text">www.books.com.tw</string>
 	<string name="pref_store_sanmin_title_text">三民</string>
+	<string name="pref_store_sanmin_summary_text">www.sanmin.com.tw</string>
 	<string name="pref_store_kingstone_title_text">金石堂</string>
+	<string name="pref_store_kingstone_summary_text">www.kingstone.com.tw</string>
 	<string name="pref_store_tenlong_title_text">天瓏</string>
+	<string name="pref_store_tenlong_summary_text">www.tenlong.com.tw</string>	
 </resources>
